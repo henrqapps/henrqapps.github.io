@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 
 const app = express();
 let panzerKills = "—";
-//teste
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function updatePanzer() {
