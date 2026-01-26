@@ -67,5 +67,5 @@ app.get("/panzer", (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
   updatePanzer();
-  setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
+  setInterval(updatePanzer, 60 * 60 * 1000); 
 });
