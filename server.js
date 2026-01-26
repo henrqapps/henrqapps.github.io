@@ -10,14 +10,13 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function updatePanzer() {
   try {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage"
-      ]
-    });
+   const browser = await puppeteer.launch({
+  args: chromium.args,
+  defaultViewport: chromium.defaultViewport,
+  executablePath: await chromium.executablePath(),
+  headless: chromium.headless
+});
+
 
     const page = await browser.newPage();
 
