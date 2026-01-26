@@ -10,7 +10,11 @@ async function updatePanzer() {
   try {
     const browser = await puppeteer.launch({
       headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage"
+      ]
     });
 
     const page = await browser.newPage();
@@ -53,7 +57,7 @@ async function updatePanzer() {
 
     await browser.close();
   } catch (err) {
-    console.error("Erro ao atualizar Panzer:", err.message);
+    console.error("Erro ao atualizar Panzer:", err);
   }
 }
 
@@ -63,9 +67,10 @@ app.get("/panzer", (req, res) => {
   res.send(panzerKills);
 });
 
-// inicia
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+// 🔥 PORTA CORRETA PRO RENDER
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT);
   updatePanzer();
   setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
 });
