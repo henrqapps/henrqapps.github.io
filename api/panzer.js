@@ -11,11 +11,11 @@ export default async function handler(req, res) {
     return res.status(200).send(cacheValue);
   }
 
-  const browser = await playwright.launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
-    headless: true
-  });
+const browser = await playwright.launch({
+  args: chromium.args,
+  executablePath: await chromium.executablePath(),
+  headless: chromium.headless
+});
 
   const page = await browser.newPage();
 
