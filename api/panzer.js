@@ -1,53 +1,33 @@
-import chromium from "@sparticuz/chromium";
-import { chromium as playwright } from "playwright-core";
-
-let cacheValue = null;
-let cacheTime = 0;
-
 export default async function handler(req, res) {
-  // cache de 15 minutos
-  if (cacheValue && Date.now() - cacheTime < 15 * 60 * 1000) {
-    res.setHeader("Content-Type", "text/plain");
-    return res.status(200).send(cacheValue);
-  }
-
-const browser = await playwright.launch({
-  args: chromium.args,
-  executablePath: await chromium.executablePath(),
-  headless: chromium.headless
-});
-
-  const page = await browser.newPage();
-
-  await page.goto("https://www.pubglooker.com/player/ChuvisTV", {
-    waitUntil: "networkidle"
-  });
-
-  // clica na aba Weapon Mastery
-  await page.click("a:has-text('Weapon')");
-  await page.waitForTimeout(3000);
-
-  const kills = await page.evaluate(() => {
-    const elements = Array.from(document.querySelectorAll("*"));
-    const panzer = elements.find(el =>
-      el.innerText.includes("PanzerFaust100M")
+  try {
+    const response = await fetch(
+      "https://www.pubglooker.com/player/ChuvisTV",
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        },
+      }
     );
 
-    if (!panzer) return null;
+    const html = await response.text();
 
-    const match = panzer.innerText.match(/([\d.,]+)\s*Kills/i);
-    return match ? match[1] : null;
-  });
+    // Procura "Panzerfaust" seguido de "kills"
+    const match = html.match(
+      /Panzerfaust[\s\S]*?(\d{1,6})\s*kills/i
+    );
 
-  await browser.close();
+    if (!match) {
+      return res.status(500).send("Panzer not found");
+    }
 
-  if (!kills) {
-    return res.status(500).send("ERR");
+    const kills = match[1];
+
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cache-Control", "s-maxage=60");
+    res.status(200).send(kills);
+
+  } catch (err) {
+    res.status(500).send("error");
   }
-
-  cacheValue = kills;
-  cacheTime = Date.now();
-
-  res.setHeader("Content-Type", "text/plain");
-  res.status(200).send(kills);
 }
