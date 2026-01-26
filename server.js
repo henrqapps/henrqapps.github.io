@@ -23,7 +23,6 @@ async function updatePanzer() {
 
     const page = await browser.newPage();
 
-    // bloqueia peso
     await page.setRequestInterception(true);
     page.on("request", req => {
       const type = req.resourceType();
