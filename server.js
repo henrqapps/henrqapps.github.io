@@ -1,3 +1,9 @@
+const express = require("express");
+const fetch = require("node-fetch");
+
+const app = express();
+let panzerKills = "—";
+
 async function updatePanzer() {
   try {
     const res = await fetch(
@@ -17,15 +23,12 @@ async function updatePanzer() {
 
     const html = await res.text();
 
-    // DEBUG opcional
-    // console.log(html.slice(0, 500));
-
     const match = html.match(
       /<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/
     );
 
     if (!match) {
-      console.log("❌ __NEXT_DATA__ não encontrado (HTML bloqueado)");
+      console.log("⚠️ __NEXT_DATA__ não encontrado");
       return;
     }
 
@@ -35,7 +38,7 @@ async function updatePanzer() {
       data?.props?.pageProps?.weaponMastery?.weapons;
 
     if (!weapons) {
-      console.log("❌ Weapon mastery não encontrado");
+      console.log("⚠️ Weapon mastery não encontrado");
       return;
     }
 
@@ -44,13 +47,28 @@ async function updatePanzer() {
     );
 
     if (!panzer) {
-      console.log("❌ Panzer não encontrado");
+      console.log("⚠️ Panzer não encontrado no JS");
       return;
     }
 
     panzerKills = String(panzer.kills);
     console.log("🔥 Panzer kills:", panzerKills);
+
   } catch (err) {
     console.error("❌ Erro ao atualizar Panzer:", err.message);
   }
 }
+
+// rota pro OBS
+app.get("/panzer", (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.send(panzerKills);
+});
+
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT);
+  updatePanzer();
+  setInterval(updatePanzer, 20 * 60 * 1000);
+});
