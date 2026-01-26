@@ -1,33 +1,27 @@
 export default async function handler(req, res) {
   try {
-    const response = await fetch(
-      "https://www.pubglooker.com/api/player/weapon-mastery/ChuvisTV",
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-          "Accept": "application/json"
-        }
-      }
+    const target =
+      "https://textise.net/showtext.aspx?strURL=https://www.pubglooker.com/player/ChuvisTV";
+
+    const response = await fetch(target);
+    const text = await response.text();
+
+    // Agora o conteúdo vem renderizado
+    const match = text.match(
+      /Panzerfaust\s+(\d+)\s+kills/i
     );
 
-    const data = await response.json();
-
-    // Procura Panzerfaust dentro da lista
-    const panzer = data.weapons.find(
-      w => w.name.toLowerCase().includes("panzer")
-    );
-
-    if (!panzer) {
+    if (!match) {
       return res.status(500).send("Panzer not found");
     }
 
-    const kills = panzer.kills;
+    const kills = match[1];
 
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cache-Control", "s-maxage=60");
-    res.status(200).send(String(kills));
+    res.status(200).send(kills);
 
-  } catch (err) {
+  } catch (e) {
     res.status(500).send("error");
   }
 }
