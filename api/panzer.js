@@ -1,27 +1,71 @@
-export default async function handler(req, res) {
+const express = require("express");
+const puppeteer = require("puppeteer");
+
+const app = express();
+let panzerKills = "—";
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function updatePanzer() {
   try {
-    const target =
-      "https://textise.net/showtext.aspx?strURL=https://www.pubglooker.com/player/ChuvisTV";
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    });
 
-    const response = await fetch(target);
-    const text = await response.text();
+    const page = await browser.newPage();
 
-    // Agora o conteúdo vem renderizado
-    const match = text.match(
-      /Panzerfaust\s+(\d+)\s+kills/i
+    await page.goto(
+      "https://www.pubglooker.com/player/ChuvisTV",
+      { waitUntil: "networkidle2" }
     );
 
-    if (!match) {
-      return res.status(500).send("Panzer not found");
+    await page.waitForSelector("#weapon-mastery-tab", { timeout: 15000 });
+    await page.click("#weapon-mastery-tab");
+
+    await page.waitForSelector("#pills-wm-overview .stat-card", {
+      timeout: 15000
+    });
+
+    await sleep(1500);
+
+    const result = await page.evaluate(() => {
+      const cards = document.querySelectorAll(
+        "#pills-wm-overview .stat-card"
+      );
+
+      for (const card of cards) {
+        const nameEl = card.querySelector("h5");
+        if (!nameEl) continue;
+
+        if (nameEl.innerText.toLowerCase().includes("panzer")) {
+          const badge = card.querySelector(".badge");
+          return badge ? badge.innerText.replace(/\D/g, "") : null;
+        }
+      }
+      return null;
+    });
+
+    if (result) {
+      panzerKills = result;
+      console.log("Panzer kills:", panzerKills);
     }
 
-    const kills = match[1];
-
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Cache-Control", "s-maxage=60");
-    res.status(200).send(kills);
-
-  } catch (e) {
-    res.status(500).send("error");
+    await browser.close();
+  } catch (err) {
+    console.error("Erro ao atualizar Panzer:", err.message);
   }
 }
+
+// rota pro OBS
+app.get("/panzer", (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.send(panzerKills);
+});
+
+// inicia
+app.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
+  updatePanzer();
+  setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
+});
