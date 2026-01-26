@@ -24,7 +24,7 @@ const browser = await playwright.launch({
   });
 
   // clica na aba Weapon Mastery
-  await page.click("text=Weapon Mastery");
+  await page.click("text=Weapon");
   await page.waitForTimeout(3000);
 
   const kills = await page.evaluate(() => {
