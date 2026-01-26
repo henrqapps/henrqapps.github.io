@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Panzer Kills</title>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 64px;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 3px 3px 8px #000;
+    }
+  </style>
+</head>
+<body>
+  <span id="kills">---</span>
+
+  <script>
+    const SCRAPER_URL =
+      "https://api.scraperapi.com?api_key=e89be47e4a37e8ce3111a8020cf6cc28&url=https://www.pubglooker.com/player/ChuvisTV";
+
+    async function loadKills() {
+      try {
+        const res = await fetch(SCRAPER_URL);
+        const html = await res.text();
+
+        const match = html.match(/PanzerFaust100M[\s\S]*?([\d.,]+)\s*Kills/i);
+        if (match) {
+          document.getElementById("kills").innerText = match[1];
+        } else {
+          document.getElementById("kills").innerText = "ERR";
+        }
+      } catch (e) {
+        document.getElementById("kills").innerText = "OFF";
+      }
+    }
+
+    loadKills();
+    setInterval(loadKills, 300000); // atualiza a cada 5 minutos
+  </script>
+</body>
+</html>
