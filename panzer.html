@@ -20,27 +20,35 @@
 
   <script>
     const SCRAPER_URL =
-      "https://api.scraperapi.com?api_key=e89be47e4a37e8ce3111a8020cf6cc28&url=https://www.pubglooker.com/player/ChuvisTV/weapon-mastery";
+      "https://api.scraperapi.com?api_key=e89be47e4a37e8ce3111a8020cf6cc28&render=true&url=https://www.pubglooker.com/player/ChuvisTV";
+
+    let lastValue = null;
 
     async function loadKills() {
       try {
         const res = await fetch(SCRAPER_URL);
         const html = await res.text();
 
-        const match = html.match(/PanzerFaust100M[\s\S]*?([\d.,]+)\s*Kills/i);
+        // Regex tolerante (funciona mesmo com mudança leve no layout)
+        const match = html.match(
+          /PanzerFaust100M[\s\S]{0,300}?([\d.,]+)\s*Kills/i
+        );
 
         if (match && match[1]) {
-          document.getElementById("kills").innerText = match[1];
+          const value = match[1];
+
+          document.getElementById("kills").innerText = value;
+          lastValue = value;
         } else {
-          document.getElementById("kills").innerText = "0";
+          document.getElementById("kills").innerText = lastValue ?? "---";
         }
       } catch (e) {
-        document.getElementById("kills").innerText = "OFF";
+        document.getElementById("kills").innerText = lastValue ?? "OFF";
       }
     }
 
     loadKills();
-    setInterval(loadKills, 300000); // 5 minutos
+    setInterval(loadKills, 600000); // 10 minutos (IMPORTANTE pro plano grátis)
   </script>
 </body>
 </html>
