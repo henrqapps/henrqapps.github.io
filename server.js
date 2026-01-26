@@ -1,73 +1,54 @@
 const express = require("express");
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
 
 const app = express();
 let panzerKills = "—";
 
 async function updatePanzer() {
   try {
-    const browser = await puppeteer.launch({
-      args: [
-        ...chromium.args,
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--single-process"
-      ],
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless
-    });
-
-    const page = await browser.newPage();
-
-    // 🚀 bloqueia APENAS imagens e mídia
-    await page.setRequestInterception(true);
-    page.on("request", req => {
-      const type = req.resourceType();
-      if (["image", "media"].includes(type)) {
-        req.abort();
-      } else {
-        req.continue();
-      }
-    });
-
-    await page.goto(
+    const res = await fetch(
       "https://www.pubglooker.com/player/ChuvisTV",
       {
-        waitUntil: "domcontentloaded",
-        timeout: 60000
+        headers: {
+          "user-agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        }
       }
     );
 
-    // ⏳ espera os cards aparecerem (sem clicar em aba)
-    await page.waitForSelector(".stat-card", { timeout: 45000 });
+    const html = await res.text();
 
-    const result = await page.evaluate(() => {
-      const cards = document.querySelectorAll(".stat-card");
+    // extrai o JSON do Next.js
+    const match = html.match(
+      /<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/
+    );
 
-      for (const card of cards) {
-        const nameEl = card.querySelector("h5");
-        if (!nameEl) continue;
-
-        if (nameEl.innerText.toLowerCase().includes("panzer")) {
-          const badge = card.querySelector(".badge");
-          return badge ? badge.innerText.replace(/\D/g, "") : null;
-        }
-      }
-      return null;
-    });
-
-    if (result) {
-      panzerKills = result;
-      console.log("🔥 Panzer kills:", panzerKills);
-    } else {
-      console.log("⚠️ Panzer não encontrado no DOM");
+    if (!match) {
+      console.log("❌ __NEXT_DATA__ não encontrado");
+      return;
     }
 
-    await browser.close();
+    const data = JSON.parse(match[1]);
+
+    // navega no JSON (estrutura do pubglooker)
+    const weapons =
+      data?.props?.pageProps?.weaponMastery?.weapons;
+
+    if (!weapons) {
+      console.log("❌ Weapon mastery não encontrado");
+      return;
+    }
+
+    const panzer = weapons.find(w =>
+      w.name.toLowerCase().includes("panzer")
+    );
+
+    if (!panzer) {
+      console.log("❌ Panzer não encontrado");
+      return;
+    }
+
+    panzerKills = String(panzer.kills);
+    console.log("🔥 Panzer kills:", panzerKills);
   } catch (err) {
     console.error("❌ Erro ao atualizar Panzer:", err.message);
   }
@@ -79,10 +60,9 @@ app.get("/panzer", (req, res) => {
   res.send(panzerKills);
 });
 
-// porta do Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
   updatePanzer();
-  setInterval(updatePanzer, 20 * 60 * 1000); // 20 minutos
+  setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
 });
