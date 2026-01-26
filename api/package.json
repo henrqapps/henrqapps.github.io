@@ -1,0 +1,9 @@
+{
+  "name": "pubg-panzer-api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@sparticuz/chromium": "^123.0.0",
+    "playwright-core": "^1.41.0"
+  }
+}
