@@ -25,20 +25,34 @@ async function updatePanzer() {
 
     const page = await browser.newPage();
 
+    // 🚀 bloqueia coisas inúteis (acelera muito)
+    await page.setRequestInterception(true);
+    page.on("request", req => {
+      const type = req.resourceType();
+      if (["image", "font", "stylesheet", "media"].includes(type)) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
     await page.goto(
       "https://www.pubglooker.com/player/ChuvisTV",
-      { waitUntil: "networkidle2" }
+      {
+        waitUntil: "domcontentloaded",
+        timeout: 60000
+      }
     );
 
-    // abre a aba Weapon Mastery e espera carregar
+    // abre Weapon Mastery
     await Promise.all([
       page.click("#weapon-mastery-tab"),
-      page.waitForSelector("#pills-wm-overview", { timeout: 15000 })
+      page.waitForSelector("#pills-wm-overview", { timeout: 30000 })
     ]);
 
-    // espera os cards aparecerem
+    // espera os cards
     await page.waitForSelector("#pills-wm-overview .stat-card", {
-      timeout: 15000
+      timeout: 30000
     });
 
     await sleep(1500);
@@ -79,10 +93,10 @@ app.get("/panzer", (req, res) => {
   res.send(panzerKills);
 });
 
-// porta correta pro Render
+// porta do Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
   updatePanzer();
-  setInterval(updatePanzer, 20 * 60 * 1000); // 20 minutos
+  setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
 });
