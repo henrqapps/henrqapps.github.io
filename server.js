@@ -23,10 +23,11 @@ async function updatePanzer() {
 
     const page = await browser.newPage();
 
+    // 🚀 bloqueia APENAS imagens e mídia
     await page.setRequestInterception(true);
     page.on("request", req => {
       const type = req.resourceType();
-      if (["image", "font", "stylesheet", "media"].includes(type)) {
+      if (["image", "media"].includes(type)) {
         req.abort();
       } else {
         req.continue();
@@ -41,23 +42,20 @@ async function updatePanzer() {
       }
     );
 
-    // 🧠 pega direto do JS da página
-    const result = await page.evaluate(() => {
-      // procura qualquer objeto grande com weapon mastery
-      for (const key in window) {
-        try {
-          const value = window[key];
+    // ⏳ espera os cards aparecerem (sem clicar em aba)
+    await page.waitForSelector(".stat-card", { timeout: 45000 });
 
-          if (
-            value &&
-            typeof value === "object" &&
-            JSON.stringify(value).includes("Panzerfaust")
-          ) {
-            const json = JSON.stringify(value);
-            const match = json.match(/Panzerfaust[^0-9]*([0-9]{1,5})/i);
-            if (match) return match[1];
-          }
-        } catch (_) {}
+    const result = await page.evaluate(() => {
+      const cards = document.querySelectorAll(".stat-card");
+
+      for (const card of cards) {
+        const nameEl = card.querySelector("h5");
+        if (!nameEl) continue;
+
+        if (nameEl.innerText.toLowerCase().includes("panzer")) {
+          const badge = card.querySelector(".badge");
+          return badge ? badge.innerText.replace(/\D/g, "") : null;
+        }
       }
       return null;
     });
@@ -66,7 +64,7 @@ async function updatePanzer() {
       panzerKills = result;
       console.log("🔥 Panzer kills:", panzerKills);
     } else {
-      console.log("⚠️ Panzer não encontrado no JS");
+      console.log("⚠️ Panzer não encontrado no DOM");
     }
 
     await browser.close();
@@ -81,10 +79,10 @@ app.get("/panzer", (req, res) => {
   res.send(panzerKills);
 });
 
-// porta Render
+// porta do Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
   updatePanzer();
-  setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
+  setInterval(updatePanzer, 20 * 60 * 1000); // 20 minutos
 });
