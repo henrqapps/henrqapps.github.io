@@ -5,8 +5,6 @@ const chromium = require("@sparticuz/chromium");
 const app = express();
 let panzerKills = "—";
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
 async function updatePanzer() {
   try {
     const browser = await puppeteer.launch({
@@ -25,7 +23,7 @@ async function updatePanzer() {
 
     const page = await browser.newPage();
 
-    // 🚀 bloqueia coisas inúteis (acelera muito)
+    // bloqueia peso
     await page.setRequestInterception(true);
     page.on("request", req => {
       const type = req.resourceType();
@@ -44,32 +42,23 @@ async function updatePanzer() {
       }
     );
 
-    // abre Weapon Mastery
-    await Promise.all([
-      page.click("#weapon-mastery-tab"),
-      page.waitForSelector("#pills-wm-overview", { timeout: 30000 })
-    ]);
-
-    // espera os cards
-    await page.waitForSelector("#pills-wm-overview .stat-card", {
-      timeout: 30000
-    });
-
-    await sleep(1500);
-
+    // 🧠 pega direto do JS da página
     const result = await page.evaluate(() => {
-      const cards = document.querySelectorAll(
-        "#pills-wm-overview .stat-card"
-      );
+      // procura qualquer objeto grande com weapon mastery
+      for (const key in window) {
+        try {
+          const value = window[key];
 
-      for (const card of cards) {
-        const nameEl = card.querySelector("h5");
-        if (!nameEl) continue;
-
-        if (nameEl.innerText.toLowerCase().includes("panzer")) {
-          const badge = card.querySelector(".badge");
-          return badge ? badge.innerText.replace(/\D/g, "") : null;
-        }
+          if (
+            value &&
+            typeof value === "object" &&
+            JSON.stringify(value).includes("Panzerfaust")
+          ) {
+            const json = JSON.stringify(value);
+            const match = json.match(/Panzerfaust[^0-9]*([0-9]{1,5})/i);
+            if (match) return match[1];
+          }
+        } catch (_) {}
       }
       return null;
     });
@@ -78,7 +67,7 @@ async function updatePanzer() {
       panzerKills = result;
       console.log("🔥 Panzer kills:", panzerKills);
     } else {
-      console.log("⚠️ Panzer não encontrado");
+      console.log("⚠️ Panzer não encontrado no JS");
     }
 
     await browser.close();
@@ -93,7 +82,7 @@ app.get("/panzer", (req, res) => {
   res.send(panzerKills);
 });
 
-// porta do Render
+// porta Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
