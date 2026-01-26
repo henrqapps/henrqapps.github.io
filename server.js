@@ -2,7 +2,6 @@ const express = require("express");
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 
-
 const app = express();
 let panzerKills = "—";
 
@@ -10,13 +9,19 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function updatePanzer() {
   try {
-   const browser = await puppeteer.launch({
-  args: chromium.args,
-  defaultViewport: chromium.defaultViewport,
-  executablePath: await chromium.executablePath(),
-  headless: chromium.headless
-});
-
+    const browser = await puppeteer.launch({
+      args: [
+        ...chromium.args,
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--single-process"
+      ],
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless
+    });
 
     const page = await browser.newPage();
 
@@ -25,9 +30,13 @@ async function updatePanzer() {
       { waitUntil: "networkidle2" }
     );
 
-    await page.waitForSelector("#weapon-mastery-tab", { timeout: 15000 });
-    await page.click("#weapon-mastery-tab");
+    // abre a aba Weapon Mastery e espera carregar
+    await Promise.all([
+      page.click("#weapon-mastery-tab"),
+      page.waitForSelector("#pills-wm-overview", { timeout: 15000 })
+    ]);
 
+    // espera os cards aparecerem
     await page.waitForSelector("#pills-wm-overview .stat-card", {
       timeout: 15000
     });
@@ -53,12 +62,14 @@ async function updatePanzer() {
 
     if (result) {
       panzerKills = result;
-      console.log("Panzer kills:", panzerKills);
+      console.log("🔥 Panzer kills:", panzerKills);
+    } else {
+      console.log("⚠️ Panzer não encontrado");
     }
 
     await browser.close();
   } catch (err) {
-    console.error("Erro ao atualizar Panzer:", err);
+    console.error("❌ Erro ao atualizar Panzer:", err.message);
   }
 }
 
@@ -68,10 +79,10 @@ app.get("/panzer", (req, res) => {
   res.send(panzerKills);
 });
 
-// 🔥 PORTA CORRETA PRO RENDER
+// porta correta pro Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
   updatePanzer();
-  setInterval(updatePanzer, 20 * 60 * 1000); // 20 min
+  setInterval(updatePanzer, 20 * 60 * 1000); // 20 minutos
 });
