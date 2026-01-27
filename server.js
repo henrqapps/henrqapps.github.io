@@ -81,29 +81,31 @@ app.get("/panzer", (req, res) => {
     background-position: center;
   }
 
-  .kills {
-    position: absolute;
+.kills {
+  position: absolute;
 
-    /* AJUSTE FINO DO BALÃO 👇 */
-    right: 140px;
-    top: 80px;
-    width: 420px;
-    height: 200px;
+  /* 🎯 CENTRALIZAÇÃO REAL NO BALÃO */
+  right: 140px;
+  top: 50%;
+  transform: translateY(-50%);
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 420px;
+  height: 200px;
 
-    font-family: Impact, "Arial Black", sans-serif;
-    font-size: 120px;
-    font-weight: 900;
-    color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    text-shadow:
-      0 0 6px rgba(0,0,0,0.9),
-      0 0 14px rgba(255,140,0,0.9),
-      0 0 28px rgba(255,80,0,1);
-  }
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 150px; /* 🔥 NÚMERO MAIOR */
+  font-weight: 900;
+  color: #ffffff;
+
+  text-shadow:
+    0 4px 0 #000,
+    0 0 10px rgba(0,0,0,0.8),
+    0 0 25px rgba(255,140,0,0.9);
+}
 </style>
 </head>
 <body>
