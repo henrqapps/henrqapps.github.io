@@ -57,7 +57,6 @@ async function updatePanzer() {
   }
 }
 
-// rota pro OBS (somente número estilizado)
 app.get("/panzer", (req, res) => {
   res.set("Content-Type", "text/html");
   res.send(`
@@ -70,31 +69,51 @@ app.get("/panzer", (req, res) => {
   body {
     margin: 0;
     background: transparent;
+  }
+
+  .container {
+    position: relative;
+    width: 1920px;
+    height: 360px;
+    background-image: url("https://raw.githubusercontent.com/henrqapps/henrqapps.github.io/refs/heads/main/PanzerKills_Banner.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .kills {
+    position: absolute;
+
+    /* AJUSTE FINO DO BALÃO 👇 */
+    right: 140px;
+    top: 80px;
+    width: 420px;
+    height: 200px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-  }
 
-  .number {
     font-family: Impact, "Arial Black", sans-serif;
-    font-size: 110px;
+    font-size: 120px;
     font-weight: 900;
     color: #ffffff;
+
     text-shadow:
       0 0 6px rgba(0,0,0,0.9),
-      0 0 14px rgba(255,120,0,0.8),
-      0 0 30px rgba(255,60,0,0.9);
-    letter-spacing: 2px;
+      0 0 14px rgba(255,140,0,0.9),
+      0 0 28px rgba(255,80,0,1);
   }
 </style>
 </head>
 <body>
-  <div class="number">${panzerKills}</div>
+  <div class="container">
+    <div class="kills">${panzerKills}</div>
+  </div>
 </body>
 </html>
   `);
-})
+});
 
 // inicia
 app.listen(3000, () => {
