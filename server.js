@@ -57,7 +57,7 @@ async function updatePanzer() {
   }
 }
 
-// rota pro OBS (HTML estilizado)
+// rota pro OBS (somente número estilizado)
 app.get("/panzer", (req, res) => {
   res.set("Content-Type", "text/html");
   res.send(`
@@ -74,48 +74,27 @@ app.get("/panzer", (req, res) => {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    font-family: 'Arial Black', Arial, sans-serif;
   }
 
-  .container {
-    text-align: center;
+  .number {
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 110px;
+    font-weight: 900;
     color: #ffffff;
     text-shadow:
-      0 0 8px rgba(255,255,255,0.4),
-      0 0 16px rgba(255,120,0,0.6),
-      0 0 32px rgba(255,60,0,0.8);
-    animation: pulse 2s infinite;
-  }
-
-  .kills {
-    font-size: 96px;
-    line-height: 1;
-  }
-
-  .label {
-    font-size: 28px;
-    letter-spacing: 4px;
-    opacity: 0.85;
-    margin-top: 4px;
-  }
-
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-    100% { transform: scale(1); }
+      0 0 6px rgba(0,0,0,0.9),
+      0 0 14px rgba(255,120,0,0.8),
+      0 0 30px rgba(255,60,0,0.9);
+    letter-spacing: 2px;
   }
 </style>
 </head>
 <body>
-  <div class="container">
-    <div class="kills">${panzerKills}</div>
-    <div class="label">KILLS</div>
-  </div>
+  <div class="number">${panzerKills}</div>
 </body>
 </html>
   `);
-});
-
+})
 
 // inicia
 app.listen(3000, () => {
