@@ -84,31 +84,28 @@ app.get("/panzer", (req, res) => {
 .kills {
   position: absolute;
 
-  /* 🎯 POSIÇÃO NO BALÃO */
-  right: 120px;          /* puxa um pouco mais pra dentro */
-  top: 52%;              /* centro óptico melhor que 50% */
+  /* 🎯 CENTRALIZAÇÃO REAL NO BALÃO */
+  right: 140px;
+  top: 50%;
   transform: translateY(-50%);
 
-  width: 480px;          /* balão mais preenchido */
-  height: 240px;
+  width: 420px;
+  height: 200px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   font-family: Impact, "Arial Black", sans-serif;
-  font-size: 180px;      /* 🔥 BEM MAIOR */
+  font-size: 150px; /* 🔥 NÚMERO MAIOR */
   font-weight: 900;
-  line-height: 1;
-
   color: #ffffff;
 
   text-shadow:
-    0 6px 0 #000,
-    0 0 14px rgba(0,0,0,0.85),
-    0 0 32px rgba(255,140,0,0.95);
+    0 4px 0 #000,
+    0 0 10px rgba(0,0,0,0.8),
+    0 0 25px rgba(255,140,0,0.9);
 }
-
 
 </style>
 </head>
