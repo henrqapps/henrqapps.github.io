@@ -66,6 +66,8 @@ app.get("/panzer", (req, res) => {
 <meta charset="UTF-8" />
 <title>Panzer Kills</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
   body {
     margin: 0;
     background: transparent;
@@ -81,32 +83,33 @@ app.get("/panzer", (req, res) => {
     background-position: center;
   }
 
-.kills {
-  position: absolute;
+  .kills {
+    position: absolute;
 
-  /* 🎯 CENTRALIZAÇÃO REAL NO BALÃO */
-  right: 140px;
-  top: 50%;
-  transform: translateY(-50%);
+    /* 🎯 CENTRALIZAÇÃO NO BALÃO */
+    right: 140px;
+    top: 50%;
+    transform: translateY(-50%);
 
-  width: 420px;
-  height: 200px;
+    width: 420px;
+    height: 200px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  font-family: Impact, "Arial Black", sans-serif;
-  font-size: 150px; /* 🔥 NÚMERO MAIOR */
-  font-weight: 900;
-  color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 160px;      /* 🔥 grande pra stream */
+    letter-spacing: 8px;  /* 🔥 separação dos números */
+    font-weight: 400;
 
-  text-shadow:
-    0 4px 0 #000,
-    0 0 10px rgba(0,0,0,0.8),
-    0 0 25px rgba(255,140,0,0.9);
-}
+    color: #ffffff;
 
+    text-shadow:
+      0 4px 0 #000,
+      0 0 12px rgba(0,0,0,0.9),
+      0 0 30px rgba(255,140,0,1);
+  }
 </style>
 </head>
 <body>
