@@ -99,8 +99,9 @@ app.get("/panzer", (req, res) => {
     justify-content: center;
 
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 160px;      /* 🔥 grande pra stream */
-    letter-spacing: 8px;  /* 🔥 separação dos números */
+    font-size: 190px;
+    letter-spacing: 12px;
+
     font-weight: 400;
 
     color: #ffffff;
