@@ -77,7 +77,7 @@ app.get("/panzer", (req, res) => {
     position: relative;
     width: 1920px;
     height: 360px;
-    background-image: url("https://raw.githubusercontent.com/henrqapps/henrqapps.github.io/refs/heads/main/PanzerKills_Banner4.png");
+    background-image: url("https://raw.githubusercontent.com/henrqapps/henrqapps.github.io/refs/heads/main/PanzerKills_4.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
