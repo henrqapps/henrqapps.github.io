@@ -1,54 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Panzer Kills</title>
-  <style>
-    body {
-      margin: 0;
-      background: transparent;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 64px;
-      font-weight: bold;
-      color: #ffffff;
-      text-shadow: 3px 3px 8px #000;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Panzer Kills</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+body {
+  margin: 0;
+  background: transparent;
+}
+
+.container {
+  position: relative;
+  width: 1920px;
+  height: 360px;
+  background-image: url("PanzerKills_4.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.kills {
+  position: absolute;
+  right: 140px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 420px;
+  height: 200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 190px;
+  letter-spacing: 12px;
+  font-weight: 400;
+  color: #ffffff;
+
+  text-shadow:
+    0 4px 0 #000,
+    0 0 12px rgba(0,0,0,0.9),
+    0 0 30px rgba(255,140,0,1);
+}
+</style>
 </head>
+
 <body>
-  <span id="kills">---</span>
-
-  <script>
-    const SCRAPER_URL =
-      "https://api.scraperapi.com?api_key=e89be47e4a37e8ce3111a8020cf6cc28&render=true&url=https://www.pubglooker.com/player/ChuvisTV";
-
-    let lastValue = null;
-
-    async function loadKills() {
-      try {
-        const res = await fetch(SCRAPER_URL);
-        const html = await res.text();
-
-        // Regex tolerante (funciona mesmo com mudança leve no layout)
-        const match = html.match(
-          /PanzerFaust100M[\s\S]{0,300}?([\d.,]+)\s*Kills/i
-        );
-
-        if (match && match[1]) {
-          const value = match[1];
-
-          document.getElementById("kills").innerText = value;
-          lastValue = value;
-        } else {
-          document.getElementById("kills").innerText = lastValue ?? "---";
-        }
-      } catch (e) {
-        document.getElementById("kills").innerText = lastValue ?? "OFF";
-      }
-    }
-
-    loadKills();
-    setInterval(loadKills, 600000); // 10 minutos (IMPORTANTE pro plano grátis)
-  </script>
+  <div class="container">
+    <div class="kills">—</div>
+  </div>
 </body>
 </html>
