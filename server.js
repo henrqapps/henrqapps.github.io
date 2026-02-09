@@ -9,7 +9,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function updatePanzer() {
   try {
     const browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium-browser",
+     executablePath: "/usr/bin/chromium",
       headless: true,
       args: [
         "--no-sandbox",
