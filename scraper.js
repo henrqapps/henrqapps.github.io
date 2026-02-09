@@ -1,6 +1,32 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 
+async function waitForPanzer(page, timeout = 30000) {
+  const start = Date.now();
+
+  while (Date.now() - start < timeout) {
+    const result = await page.evaluate(() => {
+      const cards = document.querySelectorAll(".stat-card");
+
+      for (const card of cards) {
+        const nameEl = card.querySelector("h5");
+        if (!nameEl) continue;
+
+        if (nameEl.innerText.toLowerCase().includes("panzer")) {
+          const badge = card.querySelector(".badge");
+          return badge ? badge.innerText.replace(/\D/g, "") : "—";
+        }
+      }
+      return null;
+    });
+
+    if (result) return result;
+    await new Promise(r => setTimeout(r, 1000));
+  }
+
+  return "—";
+}
+
 (async () => {
   const browser = await puppeteer.launch({
     headless: "new",
@@ -11,32 +37,16 @@ const puppeteer = require("puppeteer");
 
   await page.goto(
     "https://www.pubglooker.com/player/ChuvisTV",
-    { waitUntil: "networkidle2" }
+    { waitUntil: "domcontentloaded" }
   );
 
-  await page.waitForSelector("#weapon-mastery-tab", { timeout: 15000 });
-  await page.click("#weapon-mastery-tab");
+  // força abrir aba Weapon Mastery via hash (mais confiável)
+  await page.goto(
+    "https://www.pubglooker.com/player/ChuvisTV#weapon-mastery",
+    { waitUntil: "domcontentloaded" }
+  );
 
-  await page.waitForSelector("#pills-wm-overview .stat-card", {
-    timeout: 15000
-  });
-
-  await page.waitForTimeout(1500);
-
-  const panzerKills = await page.evaluate(() => {
-    const cards = document.querySelectorAll("#pills-wm-overview .stat-card");
-
-    for (const card of cards) {
-      const nameEl = card.querySelector("h5");
-      if (!nameEl) continue;
-
-      if (nameEl.innerText.toLowerCase().includes("panzer")) {
-        const badge = card.querySelector(".badge");
-        return badge ? badge.innerText.replace(/\D/g, "") : "—";
-      }
-    }
-    return "—";
-  });
+  const panzerKills = await waitForPanzer(page);
 
   await browser.close();
 
