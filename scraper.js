@@ -1,6 +1,36 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 
+function findPanzer(obj) {
+  if (!obj) return null;
+
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      const found = findPanzer(item);
+      if (found) return found;
+    }
+  } else if (typeof obj === "object") {
+    const values = Object.values(obj);
+
+    // tentativa direta
+    if (
+      obj.weaponName &&
+      typeof obj.weaponName === "string" &&
+      obj.weaponName.toLowerCase().includes("panzer")
+    ) {
+      return obj.kills ?? obj.kill ?? obj.stats?.kills ?? null;
+    }
+
+    // varre tudo recursivamente
+    for (const val of values) {
+      const found = findPanzer(val);
+      if (found !== null) return found;
+    }
+  }
+
+  return null;
+}
+
 (async () => {
   const browser = await puppeteer.launch({
     headless: "new",
@@ -11,23 +41,16 @@ const puppeteer = require("puppeteer");
 
   let panzerKills = null;
 
-  // Intercepta respostas da API
   page.on("response", async (response) => {
     try {
-      const url = response.url();
+      const ct = response.headers()["content-type"] || "";
+      if (!ct.includes("application/json")) return;
 
-      // endpoint interno do PUBG Looker (weapon mastery)
-      if (url.includes("/weapon-masteries")) {
-        const data = await response.json();
+      const data = await response.json();
+      const found = findPanzer(data);
 
-        for (const weapon of data) {
-          if (
-            weapon.weaponName &&
-            weapon.weaponName.toLowerCase().includes("panzer")
-          ) {
-            panzerKills = String(weapon.kills ?? 0);
-          }
-        }
+      if (found !== null) {
+        panzerKills = String(found);
       }
     } catch (e) {}
   });
@@ -37,7 +60,6 @@ const puppeteer = require("puppeteer");
     { waitUntil: "networkidle2" }
   );
 
-  // aguarda até capturar ou timeout
   const start = Date.now();
   while (!panzerKills && Date.now() - start < 60000) {
     await new Promise(r => setTimeout(r, 500));
@@ -45,7 +67,6 @@ const puppeteer = require("puppeteer");
 
   await browser.close();
 
-  // fallback seguro
   if (!panzerKills) panzerKills = "0";
 
   const template = fs.readFileSync("panzer.template.html", "utf8");
