@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Panzer Kills</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+body {
+  margin: 0;
+  background: transparent;
+}
+
+.container {
+  position: relative;
+  width: 1920px;
+  height: 360px;
+  background-image: url("PanzerKills_4.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.kills {
+  position: absolute;
+  right: 140px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 420px;
+  height: 200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 190px;
+  letter-spacing: 12px;
+  font-weight: 400;
+  color: #ffffff;
+
+  text-shadow:
+    0 4px 0 #000,
+    0 0 12px rgba(0,0,0,0.9),
+    0 0 30px rgba(255,140,0,1);
+}
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="kills">{{PANZER_KILLS}}</div>
+  </div>
+</body>
+</html>
