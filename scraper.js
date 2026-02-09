@@ -1,7 +1,7 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 
-async function waitForPanzer(page, timeout = 30000) {
+async function waitForPanzer(page, timeout = 60000) {
   const start = Date.now();
 
   while (Date.now() - start < timeout) {
