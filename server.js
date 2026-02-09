@@ -9,25 +9,33 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function updatePanzer() {
   try {
     const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      executablePath: "/usr/bin/chromium-browser",
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu"
+      ]
     });
 
     const page = await browser.newPage();
 
     await page.goto(
       "https://www.pubglooker.com/player/ChuvisTV",
-      { waitUntil: "networkidle2" }
+      { waitUntil: "networkidle2", timeout: 60000 }
     );
 
-    await page.waitForSelector("#weapon-mastery-tab", { timeout: 15000 });
+    // garante que a aba existe antes de clicar
+    await page.waitForSelector("#weapon-mastery-tab", { timeout: 30000 });
     await page.click("#weapon-mastery-tab");
 
+    // espera os cards carregarem
     await page.waitForSelector("#pills-wm-overview .stat-card", {
-      timeout: 15000
+      timeout: 30000
     });
 
-    await sleep(1500);
+    await sleep(2000);
 
     const result = await page.evaluate(() => {
       const cards = document.querySelectorAll(
@@ -48,7 +56,9 @@ async function updatePanzer() {
 
     if (result) {
       panzerKills = result;
-      console.log("Panzer kills:", panzerKills);
+      console.log("Panzer Kills FINAL:", panzerKills);
+    } else {
+      console.log("Panzer não encontrado (mantendo valor atual)");
     }
 
     await browser.close();
@@ -85,27 +95,19 @@ app.get("/panzer", (req, res) => {
 
   .kills {
     position: absolute;
-
-    /* 🎯 CENTRALIZAÇÃO NO BALÃO */
     right: 140px;
     top: 50%;
     transform: translateY(-50%);
-
     width: 420px;
     height: 200px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-family: 'Bebas Neue', sans-serif;
     font-size: 190px;
     letter-spacing: 12px;
-
     font-weight: 400;
-
     color: #ffffff;
-
     text-shadow:
       0 4px 0 #000,
       0 0 12px rgba(0,0,0,0.9),
